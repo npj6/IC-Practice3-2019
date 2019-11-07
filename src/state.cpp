@@ -66,6 +66,7 @@ State::State(std::string s){
 
   std::vector<std::string> aux = split(str, '\t');
   size = std::stoi(aux[0]);
+  this->st = new int[size*size];
   int it = 1;
   for(int i = 0; i < size; i++){
     for(int j = 0; j < size; j++){
@@ -126,4 +127,3 @@ void State::unsetCelda(int i, int j) {
 void State::unsetAll() {
 
 }
-
