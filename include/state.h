@@ -6,10 +6,14 @@
   using namespace std;
   class State{
     private:
-      int estado[][];
+      vector<vector<int>> estado;
+      int size;
 
     public:
       State(int size);
-      int getCelda(int i, int j);
+      State(string s);
+      int getCelda(int i, int j){return estado[i][j];};
+      string toString();
+      vector<string> split(string str, char pattern);
   };
 #endif
