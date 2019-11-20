@@ -6,15 +6,21 @@
   class State {
     private:
       int size;
-      int st[];
+      int* st;
       int& state(int i, int j);
 
-    public:
-      
+      std::vector<std::string> split(std::string str, char pattern);
+
       static int RAND_BOOLS_PER_INT;
+      static bool SEEDED;
+
+      static void SEED();
+
+    public:
 
       State(int size, bool parallel);
-      State(std::string state);
+      State(std::string s); //recibe el archivo 
+      ~State();
 
       int getCelda(int i, int j);
 
@@ -26,6 +32,7 @@
       void unsetAll();
 
       std::string toString();
+      void writeFile(std::string name);
 
   };
 #endif
