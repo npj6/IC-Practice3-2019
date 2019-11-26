@@ -18,7 +18,7 @@
 
     public:
 
-      State(int size, bool parallel);
+      State(int size);
       State(std::string s); //recibe el archivo 
       ~State();
 

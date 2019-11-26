@@ -36,7 +36,7 @@ int main (int argc, char *argv[])  {
 		std::string state_index = "";
 		State* state;
 		for(int i = 0; i < std::stoi(args.get("n")); i++){
-			state = new State(std::stoi(args.get("s")), false);
+			state = new State(std::stoi(args.get("s")));
 			std::string name = write_file(state, id, i, carpeta);
 			state_index = state_index + name + "\n";
 			delete state;

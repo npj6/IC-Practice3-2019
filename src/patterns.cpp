@@ -2,7 +2,7 @@
 #include "state.h"
 
 int main(void) {
-  State* estado = new State(6, false);
+  State* estado = new State(6);
   std::cout << estado->toString() << std::endl;
   /*
   estado->writeFile("estado.txt");
