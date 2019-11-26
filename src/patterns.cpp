@@ -3,6 +3,7 @@
 #include "state.h"
 #include <iostream>
 #include <fstream>
+#include <chrono>
 
 std::string write_file(State* p, int id, int pnum, std::string carpeta) {
 	std::string name = carpeta + std::to_string(id) + "_pattern" + std::to_string(pnum)+".pat";
@@ -58,8 +59,14 @@ int main (int argc, char *argv[])  {
 		std::string state_index = "";
 		State* state;
 		
+    auto start = std::chrono::steady_clock::now();
     std::vector<State*> patterns = generarPatterns(state, args);
+    auto end = std::chrono::steady_clock::now();
+    std::string time = std::to_string(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+
     escribirPatterns(patterns, id, carpeta, state_index);
+
+    std::cout << "Time: " << time << " µs" << std::endl;
 	}
 	else{
 		std::cout << "Some arguments are missing" << std::endl;

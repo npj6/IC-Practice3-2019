@@ -5,6 +5,7 @@ CFLAGS= -I$(IDIR) -fopenmp -std=c++11
 IDIR  =include
 ODIR  =obj
 SDIR  =src
+PDIR  =pat
 
 _DEPS = state.h rule.h arguments.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
@@ -35,5 +36,6 @@ patterns: $(PSOBJ)
 .PHONY: all, clean
 
 clean:
-	rm -f $(ODIR)/*.o gameoflife patterns
+	rm -f $(ODIR)/*.o gameoflife patterns $(PDIR)/*.pat
+	
 
