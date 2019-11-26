@@ -6,10 +6,10 @@ IDIR  =include
 ODIR  =obj
 SDIR  =src
 
-_DEPS = state.h rule.h
+_DEPS = state.h rule.h arguments.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = state.o rule.o
+_OBJ = state.o rule.o arguments.o
 
 _GOLOBJ = gameoflife.o $(_OBJ)
 GOLOBJ = $(patsubst %,$(ODIR)/%,$(_GOLOBJ))

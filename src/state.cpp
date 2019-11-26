@@ -33,7 +33,7 @@ int& State::state(int i, int j) {
   return st[i*size + j];
 }
 
-State::State(int size, bool parallel) {
+State::State(int size) {
   this->size = size;
   this->st = new int[size*size];
   //calculates the number of random needed
