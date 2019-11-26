@@ -18,6 +18,26 @@ void append_file(std::string name, std::string content) {
 	output.close();
 }
 
+std::vector<State*> generarPatterns(State* state, Arguments args){
+  std::vector<State*> sol;
+  for(int i = 0; i < std::stoi(args.get("n")); i++){
+    state = new State(std::stoi(args.get("s")));
+    sol.push_back(state);
+  }
+
+  return sol;
+}
+
+void escribirPatterns(std::vector<State*> v, int id, std::string carpeta, std::string state_index){
+  for(int i = 0; i < v.size(); i++){
+    std::string name = write_file(v[i], id, i, carpeta);
+		state_index = state_index + name + "\n";
+    delete v[i];
+    v[i] = nullptr;
+  }
+  append_file(carpeta, state_index);
+}
+
 int main (int argc, char *argv[])  {
 	std::cout << "SOY GAME OF LIFE" << std::endl;
 	Arguments args = Arguments(argc, argv);
@@ -32,19 +52,14 @@ int main (int argc, char *argv[])  {
 			return 1;
 		}
 
+  
 		int id = rand();
 		std::string carpeta = "pat/";
 		std::string state_index = "";
 		State* state;
-		for(int i = 0; i < std::stoi(args.get("n")); i++){
-			state = new State(std::stoi(args.get("s")));
-			std::string name = write_file(state, id, i, carpeta);
-			state_index = state_index + name + "\n";
-			delete state;
-		}
-
 		
-		append_file(carpeta, state_index);
+    std::vector<State*> patterns = generarPatterns(state, args);
+    escribirPatterns(patterns, id, carpeta, state_index);
 	}
 	else{
 		std::cout << "Some arguments are missing" << std::endl;
@@ -55,5 +70,6 @@ int main (int argc, char *argv[])  {
 	
 	return 0;
 }
+
 
 
