@@ -1,6 +1,7 @@
 #include "state.h"
 #include <iostream> //cout
 #include <cstdlib> //RAND_MAX, rand, srand
+#include <cstring> //memset
 #include <cmath> //log2
 #include <ctime> //time
 #include <fstream>
@@ -13,6 +14,22 @@ void State::SEED() {
 }
 
 int& State::state(int i, int j) {
+  //if i is out of the state, it loops back to it
+  if (i < 0) {
+    i = (-i) % size;
+    i = size - i;
+  } else if (size <= i) {
+    i = i % size;
+  }
+
+  //if j is out of the state, it loops back to it
+  if (j < 0) {
+    j = (-j) % size;
+    j = size - j;
+  } else if (size <= j) {
+    j = j % size;
+  }
+
   return st[i*size + j];
 }
 
@@ -25,20 +42,17 @@ State::State(int size, bool parallel) {
     SEED();
     SEEDED = true;
   }
-  if (parallel) {
 
-  } else {
-    for(int i=0; i<rand_nums; i++) {
-      int rand_value = rand();
-      int mask = 1;
-      for (int j=0; j<RAND_BOOLS_PER_INT; j++) {
-	if (size*size <= i*RAND_BOOLS_PER_INT + j) {
-	  break;
-	}
-	int bit = rand_value & mask;
-	st[i*RAND_BOOLS_PER_INT + j] = (int) (bit != 0);
-	mask = mask << 1;
-      }
+  for(int i=0; i<rand_nums; i++) {
+    int rand_value = rand();
+    int mask = 1;
+    for (int j=0; j<RAND_BOOLS_PER_INT; j++) {
+    	if (size*size <= i*RAND_BOOLS_PER_INT + j) {
+    	  break;
+    	}
+    	int bit = rand_value & mask;
+    	st[i*RAND_BOOLS_PER_INT + j] = (int) (bit != 0);
+    	mask = mask << 1;
     }
   }
 }
@@ -48,7 +62,7 @@ State::~State() {
 }
 
 int State::getCelda(int i, int j) {
-  return 0;
+  return state(i, j);
 }
 
 State::State(std::string s){
@@ -106,7 +120,6 @@ std::string State::toString(){
   return result;
 }
 
-
 void State::writeFile(std::string name) {
   std::ofstream output (name);
   output << toString() << std::endl;
@@ -115,15 +128,15 @@ void State::writeFile(std::string name) {
 
 //CRITICAL
 void State::setCelda(int i, int j) {
-
+  state(i, j) = 1;
 }
 void State::upCelda(int i, int j) {
-
+  state(i, j) += 1;
 }
 void State::unsetCelda(int i, int j) {
-
+  state(i, j) = 0;
 }
 
 void State::unsetAll() {
-
+  memset(st, 0, size*size*sizeof(int));
 }
