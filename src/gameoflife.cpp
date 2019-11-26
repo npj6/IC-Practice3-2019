@@ -49,7 +49,11 @@ int main(int argc, char *argv[]) {
 		closedir(pDIR);
 	}
 
-	std::vector<std::vector<State*>> posiciones;
+	std::vector<std::vector<State*>> posiciones(archivos.size());
+	for(int i = 0; i < posiciones.size(); i++){
+		posiciones[i].push_back(NULL);
+		posiciones[i].push_back(NULL);
+	}
 	BasicRule r;
 
 	for(int i = 0; i < archivos.size(); i++){
