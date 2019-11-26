@@ -33,6 +33,13 @@ int& State::state(int i, int j) {
   return st[i*size + j];
 }
 
+
+State::State(State &st) {
+  this->size = st.size;
+  this->st = new int[size*size];
+  this->unsetAll();
+}
+
 State::State(int size) {
   this->size = size;
   this->st = new int[size*size];

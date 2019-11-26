@@ -19,9 +19,11 @@
     public:
 
       State(int size);
-      State(std::string s); //recibe el archivo 
+      State(std::string s); //recibe el archivo
+      State(State &st); //Recibe el estado a ser continuado
       ~State();
 
+      int getSize() {return size;}
       int getCelda(int i, int j);
 
       //CRITICAL

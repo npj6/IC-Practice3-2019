@@ -1,32 +1,29 @@
 #include <iostream>
 #include "state.h"
+#include "basicRule.h"
 
 int main(void) {
-  State* estado = new State(6);
-  std::cout << estado->toString() << std::endl;
-  /*
-  estado->writeFile("estado.txt");
-  State* estado2 = new State("estado.txt");
-  std::cout << estado2->toString() << std::endl;
-  */
-  estado->unsetAll();
+  State* from = new State(4);
+  State* to = new State(*from);
 
-  for(int i=0; i<6; i++) {
-    for (int j=0; j<6; j++) {
-      for (int i2=0; i2<(i*6 + j); i2++) {
-        estado->upCelda(i, j);
-      }
-    }
-  }
+  std::cout << "ESTADO FROM" << std::endl;
+  std::cout << from->toString() << std::endl << std::endl;
+  std::cout << "ESTADO TO" << std::endl;
+  std::cout << to->toString() << std::endl;
+  std::cout << "------------------------------------------------" << std::endl;
 
-  //estado->setCelda(0,0);
-  std::cout << estado->toString() << std::endl;
-  std::cout << "Celda 5, 6: " << estado->getCelda(5, 6) << std::endl;
-  std::cout << "Celda 6, 5: " << estado->getCelda(6, 5) << std::endl;
-  std::cout << "Celda 5, -1: " << estado->getCelda(5, -1) << std::endl;
-  std::cout << "Celda -1, 5: " << estado->getCelda(-1, 5) << std::endl;
+  BasicRule r;
 
-  delete estado; //, estado2;
+  r.apply(*from, *to);
+
+
+  std::cout << "ESTADO FROM" << std::endl;
+  std::cout << from->toString() << std::endl << std::endl;
+  std::cout << "ESTADO TO" << std::endl;
+  std::cout << to->toString() << std::endl;
+
+  delete from, to;
+
   return 0;
 
 }

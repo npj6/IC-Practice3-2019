@@ -6,10 +6,10 @@ IDIR  =include
 ODIR  =obj
 SDIR  =src
 
-_DEPS = state.h rule.h arguments.h
+_DEPS = state.h basicRule.h arguments.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
 
-_OBJ = state.o rule.o arguments.o
+_OBJ = state.o basicRule.o arguments.o
 
 _GOLOBJ = gameoflife.o $(_OBJ)
 GOLOBJ = $(patsubst %,$(ODIR)/%,$(_GOLOBJ))
@@ -22,7 +22,7 @@ $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
 
 #make: crea todo
 all: gameoflife patterns
-	
+
 
 #make: crea gameoflife
 gameoflife: $(GOLOBJ)
@@ -36,4 +36,3 @@ patterns: $(PSOBJ)
 
 clean:
 	rm -f $(ODIR)/*.o gameoflife patterns
-
