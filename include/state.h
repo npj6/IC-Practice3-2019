@@ -33,6 +33,5 @@
 
       std::string toString();
       void writeFile(std::string name);
-
   };
 #endif
