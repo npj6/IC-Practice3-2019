@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <dirent.h>
+#include <chrono>
 #include "state.h"
 #include "basicRule.h"
 #include "arguments.h"
@@ -48,6 +49,9 @@ int main(int argc, char *argv[]) {
 		}
 		closedir(pDIR);
 	}
+	for(int i = 0; i < archivos.size(); i++){
+		archivos[i] = carpeta + archivos[i];
+	}
 
 	std::vector<std::vector<State*>> posiciones(archivos.size());
 	for(int i = 0; i < posiciones.size(); i++){
@@ -56,29 +60,37 @@ int main(int argc, char *argv[]) {
 	}
 	BasicRule r;
 
+	auto start = std::chrono::steady_clock::now();
 	for(int i = 0; i < archivos.size(); i++){
 		for(int j = 0; j < iteraciones; j++){
-			State* from;
-			State* to;
-			posiciones[i][0] = from;
-			posiciones[i][1] = to;
-			if(j == 0){
-				posiciones[i][0] = new State(archivos[i]);
-				posiciones[i][1] = new State(*posiciones[i][0]);
-			}
-			else{
-				posiciones[i][0] = new State(*posiciones[i][1]);
-				posiciones[i][1] = new State(*posiciones[i][0]);
-			}
+			
 
-			r.apply(*posiciones[i][0], *posiciones[i][1]);
+			if(j == 0){
+				posiciones[i][0] = new State((std::string)archivos[i]);
+				posiciones[i][1] = new State(*posiciones[i][0]);
+			}
+			
+
+			r.apply(*posiciones[i][j%2], *posiciones[i][(j+1)%2]);
 		}
 	}
-	
-	for(int i = 0; i < posiciones.size(); i++){
-		std::cout << posiciones[i][1]->toString() << std::endl;
-	}
+	auto end = std::chrono::steady_clock::now();
+    std::string time = std::to_string(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
 
+	int total_celulas = 0;
+	int total_tiempo = 0;
+	for(int i = 0; i < posiciones.size(); i++){
+
+		std::cout << "Num_simulacion: " << i << " Patrón: " + (std::string)archivos[i] << " Num_celulas: " + posiciones[i][0]->getSize()
+		 << " Num_generaciones: " + iteraciones << " Tiempo: " + time << std::endl;
+
+		
+		total_celulas += (int)posiciones[i][0]->getSize();
+		total_tiempo += (int)std::stoi(time);
+	}
+	std::cout << std::endl;
+	std::cout << "Total_Soluciones: " << posiciones.size() << "  total_celulas * generaciones: " << (total_celulas * (iteraciones*archivos.size()))
+	 << "  T_total: " << total_tiempo << "  total_celulas / T_total: " << (total_celulas / total_tiempo)<< std::endl;
 	return 0;
 
 }
