@@ -1,6 +1,7 @@
 
 CC=g++
 CFLAGS= -I$(IDIR) -fopenmp -std=c++11
+PFLAGS = -D PARALLEL
 
 IDIR  =include
 ODIR  =obj
@@ -36,4 +37,4 @@ patterns: $(PSOBJ)
 .PHONY: all, clean
 
 clean:
-	rm -f $(ODIR)/*.o gameoflife patterns $(PDIR)/*.pat
+	rm -f $(ODIR)/*.o gameoflife patterns $(PDIR)/*.pat patterns_report gameoflife_report

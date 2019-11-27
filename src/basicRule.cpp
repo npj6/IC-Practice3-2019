@@ -12,7 +12,7 @@ int BasicRule::around[8][2] = {
   };
 
 
-void BasicRule::apply(State &from, State &to) {
+void BasicRule::apply(State &from, State &to) const {
   for(int i=0; i<from.getSize(); i++) {
     for (int j=0; j<from.getSize(); j++) {
       kernel1(from, to, i, j);
@@ -21,7 +21,7 @@ void BasicRule::apply(State &from, State &to) {
 }
 
 //i & j of from state
-void BasicRule::kernel1(State &from, State &to, int i, int j) {
+void BasicRule::kernel1(State &from, State &to, int i, int j) const {
   int around_alive = 0;
   //counts alive neighbours
   for(int n=0; n<8; n++) {

@@ -13,7 +13,7 @@ void State::SEED() {
   srand(time(NULL));
 }
 
-int& State::state(int i, int j) {
+int& State::state(int i, int j) const {
   //if i is out of the state, it loops back to it
   if (i < 0) {
     i = (-i) % size;
@@ -68,7 +68,7 @@ State::~State() {
   delete [] st;
 }
 
-int State::getCelda(int i, int j) {
+int State::getCelda(int i, int j) const {
   return state(i, j);
 }
 
@@ -97,7 +97,7 @@ State::State(std::string s){
   }
 }
 
-std::vector<std::string> State::split(std::string str, char pattern) {
+std::vector<std::string> State::split(std::string str, char pattern) const {
   int posInit = 0;
   int posFound = 0;
   std::string splitted;
@@ -113,7 +113,7 @@ std::vector<std::string> State::split(std::string str, char pattern) {
   return resultados;
 }
 
-std::string State::toString(){
+std::string State::toString() const {
   std::string result = "";
   result += std::to_string(size);
 
@@ -127,7 +127,7 @@ std::string State::toString(){
   return result;
 }
 
-void State::writeFile(std::string name) {
+void State::writeFile(std::string name) const {
   std::ofstream output (name);
   output << toString() << std::endl;
   output.close();

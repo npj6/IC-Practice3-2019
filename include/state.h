@@ -7,9 +7,9 @@
     private:
       int size;
       int* st;
-      int& state(int i, int j);
+      int& state(int i, int j) const;
 
-      std::vector<std::string> split(std::string str, char pattern);
+      std::vector<std::string> split(std::string str, char pattern) const;
 
       static int RAND_BOOLS_PER_INT;
       static bool SEEDED;
@@ -23,8 +23,8 @@
       State(State &st); //Recibe el estado a ser continuado
       ~State();
 
-      int getSize() {return size;}
-      int getCelda(int i, int j);
+      int getSize() const {return size;}
+      int getCelda(int i, int j) const;
 
       //CRITICAL
       void setCelda(int i, int j);
@@ -33,7 +33,7 @@
 
       void unsetAll();
 
-      std::string toString();
-      void writeFile(std::string name);
+      std::string toString() const;
+      void writeFile(std::string name) const;
   };
 #endif

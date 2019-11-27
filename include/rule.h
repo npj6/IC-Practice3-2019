@@ -4,6 +4,6 @@
   #include "state.h"
   class Rule {
     public:
-      virtual void apply(State &from, State &to) = 0;
+      virtual void apply(State &from, State &to) const = 0;
   };
 #endif

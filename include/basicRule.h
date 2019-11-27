@@ -5,9 +5,9 @@
 
   class BasicRule : public Rule {
     protected:
-      void kernel1(State &from, State &to, int i_from, int j_from);
+      void kernel1(State &from, State &to, int i_from, int j_from) const;
       static int around[8][2];
     public:
-      void apply(State &from, State &to);
+      void apply(State &from, State &to) const;
   };
 #endif

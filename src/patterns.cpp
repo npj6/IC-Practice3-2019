@@ -4,6 +4,100 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <cstdlib> //RAND_MAX, rand, srand
+#include <ctime> //time
+#include <cmath> //pow
+
+#define TIME_MEASURE std::chrono::nanoseconds
+const std::string TIME_UNIT = "ns";
+const std::string DEF_FOLDER = "pat/";
+
+const std::string REPORT_FILE = "patterns_report";
+
+std::string write_file(State* p, int id, int pnum, std::string carpeta);
+void append_file(std::string name, std::string content);
+void escribirPatterns(std::vector<State*> v, int id, std::string carpeta);
+
+int main (int argc, char *argv[])  {
+	Arguments args = Arguments(argc, argv);
+
+	int num, size;
+
+	try{
+		num = std::stoi(args.get("n"));
+		size = std::stoi(args.get("s"));
+
+		if(num < 1){
+			std::cout << "The number of patterns must be positive" << std::endl;
+			return 1;
+		}
+		if(size < 1){
+			std::cout << "The size of the pattern must be positive" << std::endl;
+			return 1;
+		}
+	} catch (std::exception &e) {
+			std::cout << std::endl << "  Usage: " << std::endl
+				<< std::endl
+				<< "  " << argv[0] << " --n pattern_num --s pattern_size" << std::endl
+				<< std::endl
+				<< "  default folder is " << DEF_FOLDER << std::endl
+				<< std::endl;
+				return 1;
+	}
+
+	srand(time(NULL));
+	int id = rand();
+	std::string carpeta = DEF_FOLDER;
+	State* state;
+	std::vector<State*> patterns;
+
+	std::vector<double> times;
+
+  for(int i = 0; i < num; i++){
+	  auto start = std::chrono::steady_clock::now();
+    state = new State(size);
+	  auto end = std::chrono::steady_clock::now();
+    patterns.push_back(state);
+		times.push_back(std::chrono::duration_cast<TIME_MEASURE>(end - start).count());
+  }
+
+	int total_time = 0;
+	int total_celulas = 0;
+
+	std::ofstream output (REPORT_FILE);
+	std::string line;
+
+	std::cout << "num patron\tvalor N\t\tnum celulas\ttiempo ("+TIME_UNIT+")" << std::endl;
+	for(int i = 0; i < patterns.size(); i++){
+		int celulas = pow(patterns[i]->getSize(), 2);
+		line = std::to_string(i)+"\t\t"
+				+ std::to_string(patterns[i]->getSize()) + "\t\t"
+				+ std::to_string(celulas) + "\t\t"
+				+ std::to_string((int) times[i]) + "\n";
+
+		output << line;
+		std::cout << line;
+
+		total_time += times[i];
+		total_celulas += celulas;
+	}
+
+	output << std::endl;
+	std::cout << std::endl;
+
+	std::cout << "patrones\tcelulas\t\ttiempo ("+TIME_UNIT+")\ttiempo por patron ("+TIME_UNIT+")" << std::endl;
+	line = std::to_string(patterns.size()) + "\t\t"
+			+ std::to_string(total_celulas) + "\t\t"
+			+ std::to_string((int) total_time) + "\t\t"
+			+ std::to_string(total_time / patterns.size()) + "\n";
+	output << line;
+	std::cout << line;
+	output.close();
+
+  escribirPatterns(patterns, id, carpeta);
+
+	return 0;
+}
 
 std::string write_file(State* p, int id, int pnum, std::string carpeta) {
 	std::string name = carpeta + std::to_string(id) + "_pattern" + std::to_string(pnum)+".pat";
@@ -19,17 +113,8 @@ void append_file(std::string name, std::string content) {
 	output.close();
 }
 
-std::vector<State*> generarPatterns(State* state, Arguments args){
-  std::vector<State*> sol;
-  for(int i = 0; i < std::stoi(args.get("n")); i++){
-    state = new State(std::stoi(args.get("s")));
-    sol.push_back(state);
-  }
-
-  return sol;
-}
-
-void escribirPatterns(std::vector<State*> v, int id, std::string carpeta, std::string state_index){
+void escribirPatterns(std::vector<State*> v, int id, std::string carpeta){
+	std::string state_index;
   for(int i = 0; i < v.size(); i++){
     std::string name = write_file(v[i], id, i, carpeta);
 		state_index = state_index + name + "\n";
@@ -38,45 +123,3 @@ void escribirPatterns(std::vector<State*> v, int id, std::string carpeta, std::s
   }
   append_file(carpeta, state_index);
 }
-
-int main (int argc, char *argv[])  {
-	std::cout << "SOY GAME OF LIFE" << std::endl;
-	Arguments args = Arguments(argc, argv);
-	
-	if(args.exist("n") && args.exist("s") || args.exist("n") && args.exist("s")){
-		if(std::stoi(args.get("n")) < 1){
-			std::cout << "The number of patterns must be positive" << std::endl;
-			return 1;
-		}
-		if(std::stoi(args.get("s")) < 1){
-			std::cout << "The size of the pattern must be positive" << std::endl;
-			return 1;
-		}
-
-  
-		int id = rand();
-		std::string carpeta = "pat/";
-		std::string state_index = "";
-		State* state;
-		
-    auto start = std::chrono::steady_clock::now();
-    std::vector<State*> patterns = generarPatterns(state, args);
-    auto end = std::chrono::steady_clock::now();
-    std::string time = std::to_string(std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
-
-    escribirPatterns(patterns, id, carpeta, state_index);
-
-    std::cout << "Time: " << time << " µs" << std::endl;
-	}
-	else{
-		std::cout << "Some arguments are missing" << std::endl;
-		std::cout << "At least you should have --n (number of patterns) --s (size of the patterns)" << std::endl;
-	}
-
-	int id = rand(); 
-	
-	return 0;
-}
-
-
-
