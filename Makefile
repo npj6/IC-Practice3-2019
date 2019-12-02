@@ -3,6 +3,8 @@ CC=g++
 CFLAGS= -I$(IDIR) -fopenmp -std=c++11
 PFLAGS = -D PARALLEL
 
+PARALLEL=NO
+
 IDIR  =include
 ODIR  =obj
 SDIR  =src
@@ -10,6 +12,9 @@ PDIR  =pat
 
 _DEPS = state.h basicRule.h arguments.h
 DEPS = $(patsubst %,$(IDIR)/%,$(_DEPS))
+
+_PARALLELOBJ = state.o basicRule.o
+PARALLELOBJ = $(patsubst %,$(ODIR)/%,$(_PARALLELOBJ))
 
 _OBJ = state.o basicRule.o arguments.o
 
@@ -20,13 +25,16 @@ _PSOBJ = patterns.o $(_OBJ)
 PSOBJ = $(patsubst %,$(ODIR)/%,$(_PSOBJ))
 
 $(ODIR)/%.o: $(SDIR)/%.cpp $(DEPS)
+ifeq ($(PARALLEL),NO)
 	$(CC) -c -o $@ $< $(CFLAGS)
+else
+	$(CC) -c -o $@ $< $(CFLAGS) $(PFLAGS)
+endif
 
 #make: crea todo
-all: gameoflife patterns
+all: clean_parallel gameoflife patterns
 
-
-#make: crea gameoflife
+#crea gameoflife
 gameoflife: $(GOLOBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
@@ -34,7 +42,10 @@ gameoflife: $(GOLOBJ)
 patterns: $(PSOBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-.PHONY: all, clean
+.PHONY: all, clean, clean_parallel
 
 clean:
 	rm -f $(ODIR)/*.o gameoflife patterns $(PDIR)/*.pat patterns_report gameoflife_report
+
+clean_parallel:
+	rm -f $(PARALLELOBJ)

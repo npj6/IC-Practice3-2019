@@ -49,7 +49,9 @@ State::State(int size) {
     SEED();
     SEEDED = true;
   }
-
+  #ifdef PARALLEL
+    std::cout << "PARALELO" << std::endl;
+  #endif
   for(int i=0; i<rand_nums; i++) {
     int rand_value = rand();
     int mask = 1;

@@ -13,6 +13,9 @@ int BasicRule::around[8][2] = {
 
 
 void BasicRule::apply(State &from, State &to) const {
+  #ifdef PARALLEL
+    std::cout << "PARALELO" << std::endl;
+  #endif
   for(int i=0; i<from.getSize(); i++) {
     for (int j=0; j<from.getSize(); j++) {
       kernel1(from, to, i, j);
