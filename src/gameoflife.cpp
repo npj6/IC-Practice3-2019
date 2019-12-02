@@ -109,7 +109,7 @@ void iterate_patterns(const std::vector<std::string> &archivos, int iteraciones,
 		line = std::to_string(i)+"\t\t"
 			+ archivos[i] + "\t"
 			+ std::to_string(celulas) + "\t\t"
-			+ std::to_string(iteraciones) + "\t"
+			+ std::to_string(iteraciones) + "\t\t"
 			+ std::to_string((int) times[i]) + "\n";
 		output << line;
 		std::cout << line;
