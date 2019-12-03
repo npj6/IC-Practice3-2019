@@ -1,4 +1,5 @@
 #include "basicRule.h"
+#include <omp.h>
 
 int BasicRule::around[8][2] = {
     {-1, -1},
@@ -13,11 +14,12 @@ int BasicRule::around[8][2] = {
 
 
 void BasicRule::apply(State &from, State &to) const {
+  int i, j;
   #ifdef PARALLEL
-    std::cout << "PARALELO" << std::endl;
+  #pragma omp parallel for schedule(static) private(j, i)
   #endif
-  for(int i=0; i<from.getSize(); i++) {
-    for (int j=0; j<from.getSize(); j++) {
+  for(i=0; i<from.getSize(); i++) {
+    for (j=0; j<from.getSize(); j++) {
       kernel1(from, to, i, j);
     }
   }

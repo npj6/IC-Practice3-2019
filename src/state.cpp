@@ -5,6 +5,7 @@
 #include <cmath> //log2
 #include <ctime> //time
 #include <fstream>
+#include <omp.h>
 
 int State::RAND_BOOLS_PER_INT = (int) log2(1+(unsigned int) RAND_MAX);
 bool State::SEEDED = false;
@@ -49,13 +50,19 @@ State::State(int size) {
     SEED();
     SEEDED = true;
   }
+  
+
+  int i, j;
   #ifdef PARALLEL
-    std::cout << "PARALELO" << std::endl;
+  int CHUNK = ((size*size/rand_nums+1)/4)+1;
+  #pragma omp parallel for schedule(static, CHUNK) private(i, j) 
   #endif
-  for(int i=0; i<rand_nums; i++) {
-    int rand_value = rand();
+  for(i=0; i<rand_nums; i++) {
+    thread_local unsigned int seed = time(NULL);
+    int rand_value = rand_r(&seed);// rand();
     int mask = 1;
-    for (int j=0; j<RAND_BOOLS_PER_INT; j++) {
+   
+    for (j=0; j<RAND_BOOLS_PER_INT; j++) {
     	if (size*size <= i*RAND_BOOLS_PER_INT + j) {
     	  break;
     	}
