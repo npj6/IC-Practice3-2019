@@ -16,7 +16,8 @@ int BasicRule::around[8][2] = {
 void BasicRule::apply(State &from, State &to) const {
   int i, j;
   #ifdef PARALLEL
-  #pragma omp parallel for schedule(static) private(j, i)
+  int CHUNK = ((from.getSize()*from.getSize())/omp_get_num_procs())+1;
+  #pragma omp parallel for schedule(static, CHUNK) private(j, i) collapse(2)
   #endif
   for(i=0; i<from.getSize(); i++) {
     for (j=0; j<from.getSize(); j++) {

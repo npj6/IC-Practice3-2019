@@ -52,14 +52,23 @@ State::State(int size) {
   }
   
 
+  #ifdef PARALLEL
+    int num_seeds = omp_get_num_procs();
+  #else
+    int num_seeds = 1;
+  #endif
+
+  std::vector<unsigned int> seeds;
+  for(int x = 0; x < num_seeds; x++){
+    seeds.push_back((unsigned int)rand());
+  }
   int i, j;
   #ifdef PARALLEL
-  int CHUNK = ((size*size/rand_nums+1)/4)+1;
-  #pragma omp parallel for schedule(static, CHUNK) private(i, j) 
+    int CHUNK = ((size*size/rand_nums+1)/4)+1;
+    #pragma omp parallel for schedule(static, CHUNK) private(i, j) 
   #endif
   for(i=0; i<rand_nums; i++) {
-    thread_local unsigned int seed = time(NULL);
-    int rand_value = rand_r(&seed);// rand();
+    int rand_value = rand_r(&seeds[omp_get_thread_num()]);// rand();
     int mask = 1;
    
     for (j=0; j<RAND_BOOLS_PER_INT; j++) {

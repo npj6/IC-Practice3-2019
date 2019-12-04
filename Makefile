@@ -42,10 +42,13 @@ gameoflife: $(GOLOBJ)
 patterns: $(PSOBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-.PHONY: all, clean, clean_parallel
+.PHONY: all, clean, clean_parallel, clean_patterns
 
 clean:
 	rm -f $(ODIR)/*.o gameoflife patterns $(PDIR)/*.pat patterns_report gameoflife_report
 
 clean_parallel:
 	rm -f $(PARALLELOBJ)
+
+clean_patterns:
+	rm -f $(PDIR)/*.pat
