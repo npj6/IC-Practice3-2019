@@ -9,8 +9,8 @@
 #include "basicRule.h"
 #include "arguments.h"
 
-#define TIME_MEASURE std::chrono::microseconds
-const std::string TIME_UNIT = "µs";
+#define TIME_MEASURE std::chrono::milliseconds
+const std::string TIME_UNIT = "ms";
 const std::string DEF_FOLDER = "pat/";
 
 const std::string REPORT_FILE = "gameoflife_report";

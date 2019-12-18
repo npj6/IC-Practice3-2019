@@ -8,8 +8,8 @@
 #include <ctime> //time
 #include <cmath> //pow
 
-#define TIME_MEASURE std::chrono::nanoseconds
-const std::string TIME_UNIT = "ns";
+#define TIME_MEASURE std::chrono::microseconds
+const std::string TIME_UNIT = "µs";
 const std::string DEF_FOLDER = "pat/";
 
 const std::string REPORT_FILE = "patterns_report";
@@ -94,7 +94,8 @@ int main (int argc, char *argv[])  {
 	std::cout << line;
 	output.close();
 
-  escribirPatterns(patterns, id, carpeta);
+	std::cout << "Escribiendo los patrones." << std::endl;
+  	escribirPatterns(patterns, id, carpeta);
 
 	return 0;
 }
