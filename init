@@ -1,0 +1,12 @@
+#!/bin/bash
+#author: jorgeDonis
+echo "Setting MPI execution environment..."
+echo "Warning: this will erase your ssh configuration"
+echo "Press any key to continue (ctrl+c to stop)"
+read -n 1 -s
+rm -R ~/.ssh
+mkdir ~/.ssh
+cp env/pub ~/.ssh/authorized_keys
+cp env/priv ~/.ssh/id_rsa
+echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/openmpi/lib" >> ~/.bashrc
+source ~/.bashrc

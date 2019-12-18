@@ -1,5 +1,5 @@
 
-CC=g++
+CC=mpic++
 CFLAGS= -I$(IDIR) -fopenmp -std=c++11
 PFLAGS = -D PARALLEL
 
@@ -42,7 +42,7 @@ gameoflife: $(GOLOBJ)
 patterns: $(PSOBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
-.PHONY: all, clean, clean_parallel, clean_patterns
+.PHONY: all, clean, clean_parallel, clean_patterns, run
 
 clean:
 	rm -f $(ODIR)/*.o gameoflife patterns $(PDIR)/*.pat patterns_report gameoflife_report
@@ -52,3 +52,7 @@ clean_parallel:
 
 clean_patterns:
 	rm -f $(PDIR)/*.pat
+
+#cambiar por el mpi run
+run:
+	./gameoflife
