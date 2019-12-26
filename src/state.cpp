@@ -2,7 +2,7 @@
 #include <iostream> //cout
 #include <cstdlib> //RAND_MAX, rand, srand
 #include <cstring> //memset
-#include <cmath> //log2
+#include <cmath> //log2 sqrt
 #include <ctime> //time
 #include <fstream>
 #include <omp.h>
@@ -34,7 +34,6 @@ int& State::state(int i, int j) const {
   return st[i*size + j];
 }
 
-
 State::State(State &st) {
   this->size = st.size;
   this->st = new int[size*size];
@@ -50,7 +49,7 @@ State::State(int size) {
     SEED();
     SEEDED = true;
   }
-  
+
 
   #ifdef PARALLEL
     int num_seeds = omp_get_num_procs();
@@ -65,12 +64,12 @@ State::State(int size) {
   int i, j;
   #ifdef PARALLEL
     int CHUNK = ((size*size/rand_nums+1)/4)+1;
-    #pragma omp parallel for schedule(static, CHUNK) private(i, j) 
+    #pragma omp parallel for schedule(static, CHUNK) private(i, j)
   #endif
   for(i=0; i<rand_nums; i++) {
     int rand_value = rand_r(&seeds[omp_get_thread_num()]);// rand();
     int mask = 1;
-   
+
     for (j=0; j<RAND_BOOLS_PER_INT; j++) {
     	if (size*size <= i*RAND_BOOLS_PER_INT + j) {
     	  break;
@@ -80,6 +79,53 @@ State::State(int size) {
     	mask = mask << 1;
     }
   }
+}
+
+State::State(std::vector<int> comprimido, int size, int bools_per_int) {
+  this->size = size;
+  this->st = new int[size*size];
+
+  int i, j;
+  #ifdef PARALLEL
+    int CHUNK = ((size*size/comprimido.size()+1)/(omp_get_num_procs()*3))+1;
+    #pragma omp parallel for schedule(static, CHUNK) private(i, j)
+  #endif
+  for(i=0; i<comprimido.size(); i++) {
+    int mask = 1;
+
+    for (j=0; j<bools_per_int; j++) {
+    	if (size*size <= i*bools_per_int + j) {
+    	  break;
+    	}
+    	int bit = comprimido[i] & mask;
+    	st[i*bools_per_int + j] = (int) (bit != 0);
+    	mask = mask << 1;
+    }
+  }
+}
+
+std::vector<int> State::getComprimido() const {
+  std::vector<int> output;
+
+  int acc = 0;
+  int bits = 0;
+  int mask = 1;
+  for(int i=0; i<size*size; i++) {
+    acc += st[i] * mask;
+    mask = mask << 1;
+    bits++;
+    if(RAND_BOOLS_PER_INT <= bits) {
+      output.push_back(acc);
+      acc = 0;
+      bits = 0;
+      mask = 1;
+    }
+  }
+  if(bits != 0) {
+    output.push_back(acc);
+  }
+
+  return output;
 }
 
 State::~State() {

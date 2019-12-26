@@ -55,4 +55,4 @@ clean_patterns:
 
 #cambiar por el mpi run
 run:
-	./gameoflife
+	@ ./run

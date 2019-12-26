@@ -1,0 +1,7 @@
+#!/bin/bash
+echo "Edit now the hosts.txt file"
+echo "Press any key to continue (ctrl+c to stop)"
+read -n 1 -s
+n=$(wc -w hosts.txt)
+n=${n%% *}
+mpirun -hostfile hosts.txt -n $n ./gameoflife

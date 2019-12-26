@@ -5,6 +5,8 @@
 #include <cmath> //pow
 #include <fstream> // ofstream
 
+#include <mpi.h>
+
 #include "state.h"
 #include "basicRule.h"
 #include "arguments.h"
@@ -18,6 +20,38 @@ const std::string REPORT_FILE = "gameoflife_report";
 void iterate_patterns(const std::vector<std::string> &archivos, int iteraciones, const Rule &r);
 
 int main(int argc, char *argv[]) {
+	std::cout << State::getBoolsPerInt() << std::endl;
+	State* prueba = new State(7);
+	State* prueba2 = new State(prueba->getComprimido(), 7, State::getBoolsPerInt());
+	std::cout << prueba->toString() << std::endl << std::endl;
+	std::cout << prueba2->toString() << std::endl;
+
+	//Comunication test
+	MPI_Init(&argc, &argv);
+
+	int node, nodeNum;
+	MPI_Comm_rank(MPI_COMM_WORLD, &node);
+	MPI_Comm_size(MPI_COMM_WORLD, &nodeNum);
+
+	if (node == 0) {
+		std::cout << "NODO 0 ENVIANDO..." << std::endl;
+		int number = 413;
+		MPI_Send(&number, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
+		std::cout << "NODO 0 HA ENVIADO" << std::endl;
+	} else {
+		std::cout << "\tNODO 1 RECIBIENDO..." << std::endl;
+		int number;
+		MPI_Recv(&number, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		std::cout << "\tNODO 1 HA RECIBIDO: " << number << std::endl;
+
+	}
+
+	MPI_Finalize();
+
+	return 0;
+}
+
+int main2(int argc, char *argv[]) {
 
 	Arguments args = Arguments(argc, argv);
 
