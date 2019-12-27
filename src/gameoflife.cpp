@@ -17,6 +17,9 @@ const std::string DEF_FOLDER = "pat/";
 
 const std::string REPORT_FILE = "gameoflife_report";
 
+void send_pattern(State* pat, int node_to);
+State* recv_pattern(int node_from);
+
 void iterate_patterns(const std::vector<std::string> &archivos, int iteraciones, const Rule &r);
 
 int main(int argc, char *argv[]) {
@@ -38,17 +41,36 @@ int main(int argc, char *argv[]) {
 		int number = 413;
 		MPI_Send(&number, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
 		std::cout << "NODO 0 HA ENVIADO" << std::endl;
+		recv_pattern(1);
 	} else {
 		std::cout << "\tNODO 1 RECIBIENDO..." << std::endl;
 		int number;
 		MPI_Recv(&number, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		std::cout << "\tNODO 1 HA RECIBIDO: " << number << std::endl;
+		send_pattern(NULL, 0);
 
 	}
 
 	MPI_Finalize();
 
 	return 0;
+}
+
+void send_pattern(State* pat, int node_to) {
+	int size_nums[2];
+	size_nums[0] = 100;
+	size_nums[1] = 413;
+
+	MPI_Send(size_nums, 2, MPI_INT, node_to, 0, MPI_COMM_WORLD);
+}
+
+State* recv_pattern(int node_from) {
+	int size_nums[2];
+	MPI_Recv(size_nums, 2, MPI_INT, node_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	std::cout << "NUM 0: " << size_nums[0] << std::endl;
+	std::cout << "NUM 1: " << size_nums[1] << std::endl;
+	return NULL;
 }
 
 int main2(int argc, char *argv[]) {
