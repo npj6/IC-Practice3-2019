@@ -53,6 +53,8 @@ void send_pattern(State* pat, int node_to) {
 	size_nums[0] = pat->getSize();
 	size_nums[1] = State::getBoolsPerInt();
 
+	//std::cout << "1: enviando 2 ints" << std::endl;
+
 	MPI_Send(size_nums, 2, MPI_INT, node_to, 0, MPI_COMM_WORLD);
 	std::vector<int> value_vector = pat->getComprimido();
 	int* values = new int[value_vector.size()];
@@ -60,21 +62,43 @@ void send_pattern(State* pat, int node_to) {
 	for(int i=0; i<value_vector.size(); i++) {
 		values[i] = value_vector[i];
 	}
+/*
+	std::cout << "1: esperando señal de vuelta" << std::endl;
+
+	int num;
+	MPI_Recv(&num, 1, MPI_INT, node_to, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	std::cout << "2: enviando " << value_vector.size() << " ints" << std::endl;
 
 	MPI_Send(values, value_vector.size(), MPI_INT, node_to, 0, MPI_COMM_WORLD);
 
+	std::cout << "envio terminado" << std::endl;
+
 	delete[] values;
+	*/
 }
 
 State* recv_pattern(int node_from) {
 	int size_nums[2];
+
+	//std::cout << "1: \trecibiendo 2 ints" << std::endl;
+
 	MPI_Recv(size_nums, 2, MPI_INT, node_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 	int size = (int) ceil(size_nums[0] * size_nums[0]/(double) size_nums[1]);
 
 	int* values = new int[size];
+/*
+	std::cout << "1: \tenviando señal de vuelta" << std::endl;
+
+	int num;
+	MPI_Send(&num, 1, MPI_INT, node_from, 1, MPI_COMM_WORLD);
+
+	std::cout << "2: \recibiendo " << size << " ints" << std::endl;
 
 	MPI_Recv(size_nums, size, MPI_INT, node_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	std::cout << "\trecibo terminado" << std::endl;
 
 	std::vector<int> value_vector;
 	for(int i=0; i<size; i++) {
@@ -84,6 +108,8 @@ State* recv_pattern(int node_from) {
 	delete[] values;
 
 	return new State(value_vector, size_nums[0], size_nums[1]);
+*/
+	return NULL;
 }
 
 int main2(int argc, char *argv[]) {
