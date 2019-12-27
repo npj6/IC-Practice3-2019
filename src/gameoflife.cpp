@@ -33,13 +33,13 @@ int main(int argc, char *argv[]) {
 
 	if (node == 0) {
 		State* prueba = new State(7);
-		send_pattern(prueba, 0);
 		std::cout << prueba->toString() << std::endl << std::endl;
+		send_pattern(prueba, 1);
 		delete prueba;
 	} else {
-		State* prueba = recv_pattern(1);
-		std::cout << prueba->toString() << std::endl << std::endl;
-		delete prueba;
+		State* prueba2 = recv_pattern(0);
+		std::cout << prueba2->toString() << std::endl;
+		delete prueba2;
 	}
 
 	MPI_Finalize();
@@ -53,21 +53,18 @@ void send_pattern(State* pat, int node_to) {
 	size_nums[0] = pat->getSize();
 	size_nums[1] = State::getBoolsPerInt();
 
-	std::cout << "1: enviando 2 ints" << std::endl;
+	MPI_Ssend(size_nums, 2, MPI_INT, node_to, 0, MPI_COMM_WORLD);
 
-	MPI_Rsend(size_nums, 2, MPI_INT, node_to, 0, MPI_COMM_WORLD);
 	std::vector<int> value_vector = pat->getComprimido();
-	int* values = new int[value_vector.size()];
 
-	for(int i=0; i<value_vector.size(); i++) {
+	int n = value_vector.size();
+	int* values = new int[n];
+
+	for(int i=0; i<n; i++) {
 		values[i] = value_vector[i];
 	}
 
-	std::cout << "2: enviando " << value_vector.size() << " ints" << std::endl;
-
-	MPI_Rsend(values, value_vector.size(), MPI_INT, node_to, 1, MPI_COMM_WORLD);
-
-	std::cout << "envio terminado" << std::endl;
+	MPI_Ssend(values, n, MPI_INT, node_to, 0, MPI_COMM_WORLD);
 
 	delete[] values;
 }
@@ -75,29 +72,20 @@ void send_pattern(State* pat, int node_to) {
 State* recv_pattern(int node_from) {
 	int size_nums[2];
 
-	std::cout << "1: \trecibiendo 2 ints" << std::endl;
-
 	MPI_Recv(size_nums, 2, MPI_INT, node_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-	int size = (int) ceil(size_nums[0] * size_nums[0]/(double) size_nums[1]);
+	int n = (int) ceil(size_nums[0] * size_nums[0]/(double) size_nums[1]);
+	int* values = new int[n];
 
-	int* values = new int[size];
-
-	std::cout << "2: \recibiendo " << size << " ints" << std::endl;
-
-	MPI_Recv(size_nums, size, MPI_INT, node_from, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-	std::cout << "\trecibo terminado" << std::endl;
+	MPI_Recv(values, n, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
 	std::vector<int> value_vector;
-	for(int i=0; i<size; i++) {
+	for(int i=0; i<n; i++) {
 		value_vector.push_back(values[i]);
 	}
 
 	delete[] values;
-
 	return new State(value_vector, size_nums[0], size_nums[1]);
-
 }
 
 int main2(int argc, char *argv[]) {
