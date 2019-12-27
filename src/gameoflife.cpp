@@ -2,7 +2,7 @@
 #include <string>
 #include <dirent.h>
 #include <chrono>
-#include <cmath> //pow
+#include <cmath> //pow ceil
 #include <fstream> // ofstream
 
 #include <mpi.h>
@@ -23,11 +23,6 @@ State* recv_pattern(int node_from);
 void iterate_patterns(const std::vector<std::string> &archivos, int iteraciones, const Rule &r);
 
 int main(int argc, char *argv[]) {
-	std::cout << State::getBoolsPerInt() << std::endl;
-	State* prueba = new State(7);
-	State* prueba2 = new State(prueba->getComprimido(), 7, State::getBoolsPerInt());
-	std::cout << prueba->toString() << std::endl << std::endl;
-	std::cout << prueba2->toString() << std::endl;
 
 	//Comunication test
 	MPI_Init(&argc, &argv);
@@ -37,40 +32,58 @@ int main(int argc, char *argv[]) {
 	MPI_Comm_size(MPI_COMM_WORLD, &nodeNum);
 
 	if (node == 0) {
-		std::cout << "NODO 0 ENVIANDO..." << std::endl;
-		int number = 413;
-		MPI_Send(&number, 1, MPI_INT, 1, 0, MPI_COMM_WORLD);
-		std::cout << "NODO 0 HA ENVIADO" << std::endl;
-		recv_pattern(1);
+		State* prueba = new State(7);
+		send_pattern(prueba, 0);
+		std::cout << prueba->toString() << std::endl << std::endl;
+		delete prueba;
 	} else {
-		std::cout << "\tNODO 1 RECIBIENDO..." << std::endl;
-		int number;
-		MPI_Recv(&number, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-		std::cout << "\tNODO 1 HA RECIBIDO: " << number << std::endl;
-		send_pattern(NULL, 0);
-
+		State* prueba = recv_pattern(1);
+		std::cout << prueba->toString() << std::endl << std::endl;
+		delete prueba;
 	}
 
 	MPI_Finalize();
+
 
 	return 0;
 }
 
 void send_pattern(State* pat, int node_to) {
 	int size_nums[2];
-	size_nums[0] = 100;
-	size_nums[1] = 413;
+	size_nums[0] = pat->getSize();
+	size_nums[1] = State::getBoolsPerInt();
 
 	MPI_Send(size_nums, 2, MPI_INT, node_to, 0, MPI_COMM_WORLD);
+	std::vector<int> value_vector = pat->getComprimido();
+	int* values = new int[value_vector.size()];
+
+	for(int i=0; i<value_vector.size(); i++) {
+		values[i] = value_vector[i];
+	}
+
+	MPI_Send(values, value_vector.size(), MPI_INT, node_to, 0, MPI_COMM_WORLD);
+
+	delete[] values;
 }
 
 State* recv_pattern(int node_from) {
 	int size_nums[2];
 	MPI_Recv(size_nums, 2, MPI_INT, node_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-	std::cout << "NUM 0: " << size_nums[0] << std::endl;
-	std::cout << "NUM 1: " << size_nums[1] << std::endl;
-	return NULL;
+	int size = (int) ceil(size_nums[0] * size_nums[0]/(double) size_nums[1]);
+
+	int* values = new int[size];
+
+	MPI_Recv(size_nums, size, MPI_INT, node_from, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+	std::vector<int> value_vector;
+	for(int i=0; i<size; i++) {
+		value_vector.push_back(values[i]);
+	}
+
+	delete[] values;
+
+	return new State(value_vector, size_nums[0], size_nums[1]);
 }
 
 int main2(int argc, char *argv[]) {
