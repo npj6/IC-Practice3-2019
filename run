@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Edit now the hosts.txt file"
+echo "Edit now the hosts.txt file (first node must have the files)"
 echo "Press any key to continue (ctrl+c to stop)"
 read -n 1 -s
 n=$(wc -w hosts.txt)

@@ -20,33 +20,10 @@ const std::string REPORT_FILE = "gameoflife_report";
 void send_pattern(State* pat, int node_to);
 State* recv_pattern(int node_from);
 
+std::vector<State*> calculate_patterns(std::vector<State*> patterns,  int iteraciones, const Rule &r);
+
+
 void iterate_patterns(const std::vector<std::string> &archivos, int iteraciones, const Rule &r);
-
-int main(int argc, char *argv[]) {
-
-	//Comunication test
-	MPI_Init(&argc, &argv);
-
-	int node, nodeNum;
-	MPI_Comm_rank(MPI_COMM_WORLD, &node);
-	MPI_Comm_size(MPI_COMM_WORLD, &nodeNum);
-
-	if (node == 0) {
-		State* prueba = new State(7);
-		std::cout << prueba->toString() << std::endl << std::endl;
-		send_pattern(prueba, 1);
-		delete prueba;
-	} else {
-		State* prueba2 = recv_pattern(0);
-		std::cout << prueba2->toString() << std::endl;
-		delete prueba2;
-	}
-
-	MPI_Finalize();
-
-
-	return 0;
-}
 
 void send_pattern(State* pat, int node_to) {
 	int size_nums[2];
@@ -88,56 +65,105 @@ State* recv_pattern(int node_from) {
 	return new State(value_vector, size_nums[0], size_nums[1]);
 }
 
-int main2(int argc, char *argv[]) {
+int main(int argc, char *argv[]) {
 
-	Arguments args = Arguments(argc, argv);
+	//Comunication test
+	MPI_Init(&argc, &argv);
+
+	int node, nodeNum;
+	MPI_Comm_rank(MPI_COMM_WORLD, &node);
+	MPI_Comm_size(MPI_COMM_WORLD, &nodeNum);
 
 	int iteraciones;
-	std::string carpeta;
 	std::vector<std::string> archivos;
-	try {
-		iteraciones = std::stoi(args.get("i"));
-		if (args.exist("f")) {
-			carpeta = args.get("f");
-		} else {
-			carpeta = DEF_FOLDER;
-		}
-
-
-		if( DIR* pDIR = opendir(carpeta.c_str()) )
-		{
-			while(dirent* entry = readdir(pDIR))
-			{
-				std::string fileName = entry->d_name;
-
-				if( fileName != "." && fileName != ".." && fileName[0] != '.'){
-					archivos.push_back(fileName);
-				}
-			}
-			closedir(pDIR);
-		}
-
-		for(int i = 0; i < archivos.size(); i++){
-			archivos[i] = carpeta + archivos[i];
-		}
-	} catch (std::exception &e) {
-		std::cout << std::endl << "  Usage: " << std::endl
-			<< std::endl
-			<< "  " << argv[0] << " --i iterations [--f folder]" << std::endl
-			<< std::endl
-			<< "  default folder is " << DEF_FOLDER << std::endl
-			<< std::endl;
-			return 1;
-	}
-
 	BasicRule r;
 
+	if(node == 0) {
+		Arguments args = Arguments(argc, argv);
+
+		std::string carpeta;
+		std::vector<std::string> archivos;
+		try {
+			iteraciones = std::stoi(args.get("i"));
+			if (args.exist("f")) {
+				carpeta = args.get("f");
+			} else {
+				carpeta = DEF_FOLDER;
+			}
+
+
+			if( DIR* pDIR = opendir(carpeta.c_str()) )
+			{
+				while(dirent* entry = readdir(pDIR))
+				{
+					std::string fileName = entry->d_name;
+
+					if( fileName != "." && fileName != ".." && fileName[0] != '.'){
+						archivos.push_back(carpeta + fileName);
+					}
+				}
+				closedir(pDIR);
+			}
+
+		} catch (std::exception &e) {
+			std::cout << std::endl << "  Usage: " << std::endl
+				<< std::endl
+				<< "  " << argv[0] << " --i iterations [--f folder]" << std::endl
+				<< std::endl
+				<< "  default folder is " << DEF_FOLDER << std::endl
+				<< std::endl;
+				MPI_Finalize();
+				return 1;
+		}
+	}
+
+	if(node==0) {
+		/*
+			el nodo 0 empieza a recorrer los archivos y crea los Pattern.
+			Envia 2 patrones a cada nodo y se pone a hacer otros dos
+			Despues haces MPI Barrier para esperar a que todos acaben sus 2 patrones
+			Cuando todos acaben sus dos patrones, sigues recorriendo los archivos y repites
+		*/
+	} else {
+		/*
+			los demás nodos esperan los 2 patrones y los hacen
+
+		*/
+	}
+
 	iterate_patterns(archivos, iteraciones, r);
+
+
+	MPI_Finalize();
 
 	return 0;
 
 }
 
+
+//LITERALMENTE SE CARGA LOS DATOS DE INPUT, CUIDADO
+std::vector<State*> calculate_patterns(std::vector<State*> patterns,  int iteraciones, const Rule &r) {
+	std::vector<State*> output;
+	State* posiciones[2];
+
+	for(int i = 0; i < patterns.size(); i++){
+
+		//Carga el estado
+		posiciones[0] = patterns[i];
+		posiciones[1] = new State(*posiciones[0]);
+
+		for(int j = 0; j < iteraciones; j++){
+			r.apply(*posiciones[j%2], *posiciones[(j+1)%2]);
+		}
+
+		output.push_back(posiciones[iteraciones%2]);
+		delete posiciones[(iteraciones-1)%2];
+		patterns[i] = nullptr;
+	}
+
+	return output;
+
+}
 
 void iterate_patterns(const std::vector<std::string> &archivos, int iteraciones, const Rule &r) {
 
